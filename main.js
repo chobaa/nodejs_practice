@@ -33,7 +33,8 @@ var title = queryData.id;
     else{
       fs.readdir('./data',(error,filelist) =>{
           var list = template.list(filelist);
-          fs.readFile(`./data/${queryData.id}`,'utf-8',(err,description) => {
+          var filteredId = path.parse(queryData.id).base;
+          fs.readFile(`./data/${filteredId}`,'utf-8',(err,description) => {
           var html = template.html(title,list,`<h2>${title}</h2>${description}`, 
           `<a href="/create">create</a>
           <a href="/update?id=${title}">update</a>
@@ -104,10 +105,10 @@ var title = queryData.id;
     });
     request.on('end',()=>{
       var post = qs.parse(body);
-      var id = post.id;
+      var filteredId = path.parse(post.id).base;
       var title = post.title;
       var description = post.description;
-      fs.rename(`data/${id}`, `data/${title}`, (error) => {
+      fs.rename(`data/${filteredId}`, `data/${title}`, (error) => {
         fs.writeFile(`data/${title}`, description, 'utf-8', (err) =>{
           response.writeHead(302, {Location: `/?id=${title}`});
           response.end();
@@ -122,8 +123,8 @@ var title = queryData.id;
     });
     request.on('end',()=>{
       var post = qs.parse(body);
-      var id = post.id;
-      fs.unlink(`data/${id}`, (err) => {
+      var filteredId = path.parse(post.id).base;
+      fs.unlink(`data/${filteredId}`, (err) => {
         response.writeHead(302, {Location: `/`});
           response.end();
       })
